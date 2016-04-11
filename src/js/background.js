@@ -9,6 +9,7 @@ chrome.storage.sync.get(['whitelist'], function(data) {
 // persistent background variables
 var cookieMonsterStatus = true;
 var cookiesSinceInstall = 0;
+var offlineWhitelist = [];
 
 // non-persistent variables to be updated
 var cookiesByDomain = [];
@@ -26,7 +27,7 @@ var getURL = function(cookie) {
 var eat = function(tab) {
   // load current whitelist on update/create
   chrome.storage.sync.get(['whitelist'], function(result) {
-    var whitelist = result.whitelist ? result.whitelist : [];
+    var whitelist = result.whitelist ? result.whitelist : offlineWhitelist;
     // remove all associated cookies
     chrome.cookies.getAll({"url" : tab.url}, function(cookies) {
       if (cookies && cookieMonsterStatus && cookies.length > 0) {
@@ -72,7 +73,7 @@ var eat = function(tab) {
 chrome.tabs.onActivated.addListener( function( tabId ){
   // load current whitelist on update/create
   chrome.storage.sync.get(['whitelist'], function(result) {
-    var whitelist = result.whitelist ? result.whitelist : [];
+    var whitelist = result.whitelist ? result.whitelist : offlineWhitelist;
     // remove all associated cookies
     chrome.tabs.get( tabId.tabId, function(tab) {
       chrome.cookies.getAll({"url" : tab.url}, function(cookies) {
