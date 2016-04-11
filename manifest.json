@@ -38,27 +38,8 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "css" : [
-        "src/css/angular-csp.css",
-        "src/css/angular-material.min.css",
-        "src/css/bootstrap.min.css",
-        "src/css/font-awesome.min.css",
-        "src/css/popup.css",
-        "src/css/cookie.css",
-        "src/css/reportcard.css"
-      ],
       "js": [
-        "src/js/inject.js",
-        "src/js/sjcl.js",
-        "src/js/jquery.min.js",
-        "src/js/angular.min.js",
-        "src/js/angular-aria.min.js",
-        "src/js/angular-animate.min.js",
-        "src/js/angular-messages.min.js",
-        "src/js/angular-material.min.js",
-        "src/js/background.js",
-        "src/js/bootstrap.min.js",
-        "src/js/app.js"
+        "src/js/inject.js"
       ]
     }
   ]
