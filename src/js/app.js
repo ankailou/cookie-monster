@@ -286,8 +286,14 @@ angular.module('cookieMonster', ['ngMaterial', 'ngAnimate', 'ngMessages'])
 
   // load whitelist for updates
   chrome.storage.sync.get(['whitelist'], function(result) {
-    $scope.whitelist = result.whitelist;
+    $scope.whitelist = result.whitelist ? result.whitelist : chrome.extension.getBackgroundPage().offlineWhitelist;
     // load functions for modifying whitelist
+    $scope.updateWhitelist = function() {
+      if (result.whitelist)
+        chrome.storage.sync.set({'whitelist' : $scope.whitelist});
+      else
+        chrome.extension.getBackgroundPage().offlineWhitelist = $scope.whitelist;
+    };
     $scope.whitelistSite = function(domain) {
       if ($scope.whitelist.indexOf(domain) === -1) {
         $scope.whitelist.push(domain);
@@ -295,14 +301,14 @@ angular.module('cookieMonster', ['ngMaterial', 'ngAnimate', 'ngMessages'])
         $scope.whitelist.splice($scope.whitelist.indexOf(domain), 1);
       }
       console.log($scope.whitelist);
-      chrome.storage.sync.set({'whitelist' : $scope.whitelist});
+      $scope.updateWhitelist();
     };
     $scope.addWhitelist = function(domain) {
       $scope.domain = undefined;
       if ($scope.whitelist.indexOf(domain) === -1) {
         $scope.domain = '';
         $scope.whitelist.push(domain);
-        chrome.storage.sync.set({'whitelist' : $scope.whitelist});
+        $scope.updateWhitelist();
       } else {
         $scope.generateAlert('Nope.', 'The domain ' + domain + ' is already whitelisted. Maybe try another.');
       }
@@ -317,7 +323,7 @@ angular.module('cookieMonster', ['ngMaterial', 'ngAnimate', 'ngMessages'])
       .cancel('No');
       $mdDialog.show(confirm).then(function() {
         $scope.whitelist.splice(idx, 1);
-        chrome.storage.sync.set({'whitelist' : $scope.whitelist});
+        $scope.updateWhitelist();
       }, function() {});
     };
     $scope.clearWhitelist = function(idx, domain) {
@@ -330,7 +336,7 @@ angular.module('cookieMonster', ['ngMaterial', 'ngAnimate', 'ngMessages'])
       .cancel('No');
       $mdDialog.show(confirm).then(function() {
         $scope.whitelist = [];
-        chrome.storage.sync.set({'whitelist' : $scope.whitelist});
+        $scope.updateWhitelist();
       }, function() {});
     };
     $scope.exportWhitelist = function(password) {
@@ -366,7 +372,7 @@ angular.module('cookieMonster', ['ngMaterial', 'ngAnimate', 'ngMessages'])
         try {
           var domains = sjcl.decrypt(password, hash).split(' ');
           domains.forEach( function(domain) { if ($scope.whitelist.indexOf(domain) === -1) $scope.whitelist.push(domain); });
-          chrome.storage.sync.set({'whitelist' : $scope.whitelist});
+          $scope.updateWhitelist();
         } catch (err) {
           $scope.generateAlert('Decryption Failed', 'Either your encrypted whitelist or encryption key is wrong.');
           return;
